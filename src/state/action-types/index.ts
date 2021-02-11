@@ -3,4 +3,5 @@ export enum ActionType {
   BUY = "buy",
   SELL = "sell",
   START = "start",
+  END = "end",
 }

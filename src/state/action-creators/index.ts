@@ -1,5 +1,11 @@
 import { ActionType } from "../action-types"
-import { HoldAction, BuyAction, SellAction, StartAction } from "../actions"
+import {
+  HoldAction,
+  BuyAction,
+  SellAction,
+  StartAction,
+  EndAction,
+} from "../actions"
 import { Coin } from "../coin"
 
 export const hold = (): HoldAction => {
@@ -28,8 +34,17 @@ export const sell = (amountToSell: number, coinId: Coin): SellAction => {
   }
 }
 
-export const start = (): StartAction => {
+export const startGame = (coinId: Coin): StartAction => {
   return {
     type: ActionType.START,
+    payload: {
+      type: coinId,
+    },
+  }
+}
+
+export const endGame = (): EndAction => {
+  return {
+    type: ActionType.END,
   }
 }

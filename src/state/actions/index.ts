@@ -23,6 +23,18 @@ export interface SellAction {
 
 export interface StartAction {
   type: ActionType.START
+  payload: {
+    type: Coin
+  }
 }
 
-export type Action = HoldAction | BuyAction | SellAction | StartAction
+export interface EndAction {
+  type: ActionType.END
+}
+
+export type Action =
+  | HoldAction
+  | BuyAction
+  | SellAction
+  | StartAction
+  | EndAction

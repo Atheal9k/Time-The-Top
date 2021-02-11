@@ -68,7 +68,7 @@ const EOS = [
     coinPrice: 12.14,
   },
   {
-    pictureId: four,
+    pictureId: fourteen,
     coinPrice: 5.04,
   },
   {

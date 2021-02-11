@@ -25,21 +25,18 @@ const ContentDiv = styled.div`
   font-size: 1.5rem;
 `
 
+const ProfitDiv = styled.div`
+  margin-top: 2.5rem;
+`
+
 const GameMain: React.FC = () => {
   const [buyAmount, setbuyAmount] = useState(0)
   const [sellAmount, setSellAmount] = useState(0)
+  const [profit, setProfit] = useState(0)
   const dispatch = useDispatch()
   const state = useTypedSelector((state) => state)
 
-  useEffect(() => {
-    if (state.game.gameOverFlag == true) {
-      return (
-        <div>
-          <button onClick={start}>Start Game</button>
-        </div>
-      )
-    }
-  }, [state.game.coinDataId])
+  useEffect(() => {}, [state.game.coinDataId, state.game.gameOverFlag])
 
   const formatDollar = (
     number: any,
@@ -54,17 +51,38 @@ const GameMain: React.FC = () => {
   const hold = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
     if (state.game.coinDataId === 14) {
+      dispatch(actionCreators.endGame())
+      calculateProfit()
+      alert(
+        `You ended the game with: ${formatDollar(
+          state.game.tokenAmount &&
+            state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+          5
+        )}`
+      )
       return
     } else {
       dispatch(actionCreators.hold())
     }
-
-    console.log(state)
   }
 
   const buy = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (state.game.coinDataId === 14) {
+      dispatch(actionCreators.endGame())
+      alert(
+        `You ended the game with: ${formatDollar(
+          state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+          5
+        )} /n You made: ${formatDollar(
+          1000 * Eos[0].coinPrice,
+          5
+        )} - ${formatDollar(
+          state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+          5
+        )}
+      `
+      )
       return
     } else if (state.game.cashFlow <= 0) {
       alert("You have no more spare cash")
@@ -79,16 +97,23 @@ const GameMain: React.FC = () => {
           },
         })
       )
-      console.log(state.game.coinDataId)
+      setbuyAmount(0)
     }
   }
 
   const sell = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (state.game.coinDataId === 14) {
+      dispatch(actionCreators.endGame())
+      alert(
+        `You ended the game with: ${formatDollar(
+          state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+          5
+        )}`
+      )
       return
     } else if (state.game.tokenAmount <= 0) {
-      alert("You have no tokens, game has ended")
+      alert("You have no tokens, try another action")
       return
     } else if (state.game !== undefined) {
       dispatch(
@@ -100,12 +125,30 @@ const GameMain: React.FC = () => {
           },
         })
       )
+      setSellAmount(0)
     }
   }
 
-  const start = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const startGame = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
-    dispatch(actionCreators.start)
+    dispatch(
+      actionCreators.startGame({
+        id: "eos",
+        coinSet: {
+          pictureId: 0,
+          price: Eos[0].coinPrice,
+        },
+      })
+    )
+  }
+
+  const calculateProfit = () => {
+    let profits =
+      state.game.tokenAmount * Eos[14].coinPrice -
+      1000 / Eos[0].coinPrice +
+      state.game.cashFlow
+    setProfit(profits)
+    return
   }
 
   return (
@@ -122,44 +165,62 @@ const GameMain: React.FC = () => {
         <section>{`Spare Cash: $${state.game.cashFlow}`}</section>
       </ContentDiv>
 
-      {state.game.gameOverFlag == true ? (
+      {state.game.gameOverFlag === true ? (
         <div>
-          <button onClick={start}>Start Game</button>
+          <button onClick={startGame}>Start Game</button>
         </div>
+      ) : (
+        <div>
+          {state.game.coinDataId !== undefined ? (
+            <img src={Eos[state.game.coinDataId].pictureId} />
+          ) : (
+            "Loading"
+          )}
+        </div>
+      )}
+
+      {state.game.gameOverFlag === false ? (
+        <Form onSubmit={buy}>
+          <button className="ui button">Buy</button>
+          <Input
+            className="ui input"
+            placeholder="Enter Amount"
+            onChange={(e) => setbuyAmount(parseInt(e.target.value))}
+            value={buyAmount}
+          />
+        </Form>
       ) : null}
 
-      <div>
-        {state.game.coinDataId !== undefined ? (
-          <img src={Eos[state.game.coinDataId].pictureId} />
-        ) : (
-          "Loading"
-        )}
-      </div>
+      {state.game.gameOverFlag === false ? (
+        <Form onSubmit={sell}>
+          <button className="ui button">Sell</button>
 
-      <Form onSubmit={buy}>
-        <button className="ui button">Buy</button>
-        <Input
-          className="ui input"
-          placeholder="Enter Amount"
-          onChange={(e) => setbuyAmount(parseInt(e.target.value))}
-          value={buyAmount}
-        />
-      </Form>
+          <Input
+            className="ui input"
+            placeholder="Enter Amount"
+            onChange={(e) => setSellAmount(parseInt(e.target.value))}
+            value={sellAmount}
+          />
+        </Form>
+      ) : null}
 
-      <Form onSubmit={sell}>
-        <button className="ui button">Sell</button>
+      {state.game.gameOverFlag === false ? (
+        <button className="ui button" onClick={hold}>
+          Hodl
+        </button>
+      ) : null}
 
-        <Input
-          className="ui input"
-          placeholder="Enter Amount"
-          onChange={(e) => setSellAmount(parseInt(e.target.value))}
-          value={sellAmount}
-        />
-      </Form>
-
-      <button className="ui button" onClick={hold}>
-        Hodl
-      </button>
+      {state.game.coinDataId >= 14 && state.game.gameOverFlag == true ? (
+        <ProfitDiv>
+          <h1>
+            {`You Ended The Game With: ${formatDollar(
+              state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+              5
+            )}`}
+          </h1>
+          <h2>{`Your Profits Are: $${profit.toFixed(4)}`}</h2>
+        </ProfitDiv>
+      ) : null}
     </Div>
   )
 }
