@@ -33,6 +33,14 @@ const ProfitDiv = styled.div`
   margin-top: 2.5rem;
 `
 
+const H3 = styled.h3`
+  color: red;
+`
+
+const HoldButton = styled.button`
+  margin-right: 12rem;
+`
+
 const GameMain: React.FC = () => {
   const [buyAmount, setbuyAmount] = useState(0)
   const [sellAmount, setSellAmount] = useState(0)
@@ -88,6 +96,9 @@ const GameMain: React.FC = () => {
       `
       )
       return
+    } else if (buyAmount > state.game.cashFlow) {
+      alert("You cant buy more than you have in spare cash")
+      return
     } else if (state.game.cashFlow <= 0) {
       alert("You have no more spare cash")
       return
@@ -115,6 +126,12 @@ const GameMain: React.FC = () => {
           5
         )}`
       )
+      return
+    } else if (
+      sellAmount >
+      state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice
+    ) {
+      alert("You cant sell more than you have!")
       return
     } else if (state.game.tokenAmount <= 0) {
       alert("You have no tokens, try another action")
@@ -161,12 +178,16 @@ const GameMain: React.FC = () => {
         <div>
           <h1>Time The Top</h1>
         </div>
-        <div>{`Spare Cash: $${state.game.cashFlow}`}</div>
+        <div>{`Spare Cash: $${state.game.cashFlow.toFixed(2)}`}</div>
         <div>{`Token Balance in usd: ${formatDollar(
-          state.game.tokenAmount &&
-            state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
+          state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
           5
         )}`}</div>
+
+        <H3>
+          DISCLAIMER: Do not mistake HODL button for submit button - All three
+          buttons will advance the game
+        </H3>
       </ContentDiv>
 
       {state.game.gameOverFlag === true ? (
@@ -192,9 +213,12 @@ const GameMain: React.FC = () => {
         <Form onSubmit={buy}>
           <button className="ui button">Buy</button>
           <Input
+            type="number"
+            step="0.01"
+            min="0"
             className="ui input"
             placeholder="Enter Amount"
-            onChange={(e) => setbuyAmount(parseInt(e.target.value))}
+            onChange={(e) => setbuyAmount(parseFloat(e.target.value))}
             value={buyAmount}
           />
         </Form>
@@ -205,18 +229,21 @@ const GameMain: React.FC = () => {
           <button className="ui button">Sell</button>
 
           <Input
+            type="number"
+            step="0.01"
+            min="0"
             className="ui input"
             placeholder="Enter Amount"
-            onChange={(e) => setSellAmount(parseInt(e.target.value))}
+            onChange={(e) => setSellAmount(parseFloat(e.target.value))}
             value={sellAmount}
           />
         </Form>
       ) : null}
 
       {state.game.gameOverFlag === false ? (
-        <button className="ui button" onClick={hold}>
-          Hodl
-        </button>
+        <HoldButton className="ui button" onClick={hold}>
+          HODL
+        </HoldButton>
       ) : null}
 
       {state.game.coinDataId >= 14 && state.game.gameOverFlag === true ? (
@@ -227,7 +254,7 @@ const GameMain: React.FC = () => {
               5
             )}`}
           </h1>
-          <h2>{`Your Profits Are: $${profit.toFixed(4)}`}</h2>
+          <h2>{`Your Profits Are: $${profit.toFixed(2)}`}</h2>
         </ProfitDiv>
       ) : null}
     </Div>

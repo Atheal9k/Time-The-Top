@@ -40,7 +40,8 @@ const reducer = produce((state: GameState = initialState, action: Action) => {
       return state
     case ActionType.SELL:
       state.balance -= action.payload.amountToSell
-      state.cashFlow += action.payload.amountToSell
+      state.cashFlow +=
+        action.payload.amountToSell / action.payload.type.coinSet.price
       state.tokenAmount -=
         action.payload.amountToSell / action.payload.type.coinSet.price
 
