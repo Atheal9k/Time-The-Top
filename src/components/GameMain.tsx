@@ -167,7 +167,12 @@ const GameMain: React.FC = () => {
 
       {state.game.gameOverFlag === true ? (
         <div>
-          <button onClick={startGame}>Start Game</button>
+          <h4>You start off with ~$400 in this mystery token.</h4>
+          <h4>You have $1000 spare cash to buy when you want as well.</h4>
+          <h4>Good Luck and post your gainz in the group!</h4>
+          <div>
+            <button onClick={startGame}>Start Game</button>
+          </div>
         </div>
       ) : (
         <div>
@@ -210,7 +215,7 @@ const GameMain: React.FC = () => {
         </button>
       ) : null}
 
-      {state.game.coinDataId >= 14 && state.game.gameOverFlag == true ? (
+      {state.game.coinDataId >= 14 && state.game.gameOverFlag === true ? (
         <ProfitDiv>
           <h1>
             {`You Ended The Game With: ${formatDollar(
