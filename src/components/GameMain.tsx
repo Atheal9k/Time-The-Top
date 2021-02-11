@@ -23,6 +23,10 @@ const Form = styled.form`
 const ContentDiv = styled.div`
   margin-bottom: 3rem;
   font-size: 1.5rem;
+
+  div {
+    margin: 18px 0px;
+  }
 `
 
 const ProfitDiv = styled.div`
@@ -157,12 +161,12 @@ const GameMain: React.FC = () => {
         <div>
           <h1>Time The Top</h1>
         </div>
+        <div>{`Spare Cash: $${state.game.cashFlow}`}</div>
         <div>{`Token Balance in usd: ${formatDollar(
           state.game.tokenAmount &&
             state.game.tokenAmount * Eos[state.game.coinDataId].coinPrice,
           5
         )}`}</div>
-        <section>{`Spare Cash: $${state.game.cashFlow}`}</section>
       </ContentDiv>
 
       {state.game.gameOverFlag === true ? (
